@@ -34,22 +34,27 @@ Node.js + Express
   | SQL
   v
 MySQL
-API
-Method	Endpoint	Description
-GET	/api/tasks	Get all tasks
-POST	/api/tasks	Create a task
-PATCH	/api/tasks/:id	Update a task
-DELETE	/api/tasks/:id	Delete a task
-GET	/api/health	API health check
+```
+
+## API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tasks` | Get all tasks |
+| POST | `/api/tasks` | Create a task |
+| PATCH | `/api/tasks/:id` | Update a task |
+| DELETE | `/api/tasks/:id` | Delete a task |
+| GET | `/api/health` | API health check |
 
 The backend uses parameterized SQL queries when interacting with MySQL.
 
-Docker
+## Docker
 
 The frontend and backend are containerized using Docker.
 
 Current architecture:
 
+```text
 React Container
        |
        v
@@ -57,9 +62,11 @@ Express Container
        |
        v
 MySQL
+```
 
 The project is being developed toward a fully containerized setup using Docker Compose:
 
+```text
 React Container
        |
        v
@@ -70,77 +77,83 @@ MySQL Container
        |
        v
 Persistent Docker Volume
+```
 
-The Docker portion of the project focuses on understanding:
+The Docker portion of the project focuses on:
 
-Dockerfiles and image creation
-Containers and container lifecycle
-Port mapping
-Container networking
-Environment variables
-Docker volumes
-Docker Compose
-Production containerization
-Multi-stage builds
-Configuration
+- Dockerfiles and image creation
+- Containers and container lifecycle
+- Port mapping
+- Container networking
+- Environment variables
+- Docker volumes
+- Docker Compose
+- Production containerization
+- Multi-stage builds
+
+## Configuration
 
 Environment-specific configuration is handled through environment variables.
 
 Example:
 
+```env
 DB_HOST=
 DB_USER=
 DB_PASSWORD=
 DB_NAME=
 DB_PORT=
+```
 
-Sensitive configuration is excluded from version control through .gitignore.
+Sensitive configuration is excluded from version control through `.gitignore`.
 
-CI/CD
+## CI/CD
 
 GitHub Actions is being used to automate the project's development workflow.
 
 The planned CI pipeline will:
 
-Install dependencies
-Run linting and tests
-Build the frontend
-Build Docker images
-Validate changes on pushes and pull requests
+1. Install dependencies
+2. Run linting and tests
+3. Build the frontend
+4. Build Docker images
+5. Validate changes on pushes and pull requests
 
 The project will eventually be extended with continuous deployment and automated container image publishing.
 
-Roadmap
- React frontend
- Express REST API
- MySQL integration
- Task CRUD operations
- Dockerize backend
- Dockerize frontend
- Environment-based configuration
- GitHub repository
- Dockerize MySQL
- Docker Compose
- Persistent MySQL volumes
- Automated API tests
- Integration tests
- Production Docker images
- Multi-stage Docker builds
- GitHub Actions CI pipeline
- Publish images to GitHub Container Registry
- Continuous deployment
- Cloud deployment
-Project Goals
+## Roadmap
+
+- [x] React frontend
+- [x] Express REST API
+- [x] MySQL integration
+- [x] Task CRUD operations
+- [x] Dockerize backend
+- [x] Dockerize frontend
+- [x] Environment-based configuration
+- [x] GitHub repository
+- [ ] Dockerize MySQL
+- [ ] Docker Compose
+- [ ] Persistent MySQL volumes
+- [ ] Automated API tests
+- [ ] Integration tests
+- [ ] Production Docker images
+- [ ] Multi-stage Docker builds
+- [ ] GitHub Actions CI pipeline
+- [ ] Publish images to GitHub Container Registry
+- [ ] Continuous deployment
+- [ ] Cloud deployment
+
+## Project Goals
 
 The main goal of this project is to gain practical experience taking a full-stack application from local development to a containerized and automated deployment workflow.
 
 The project focuses on:
 
-Full-stack application development
-REST API design
-Relational database integration
-Docker and container networking
-CI/CD automation
-Production-oriented deployment practices
+- Full-stack application development
+- REST API design
+- Relational database integration
+- Docker and container networking
+- CI/CD automation
+- Production-oriented deployment practices
 
 The application itself is intentionally simple so that the focus can remain on the engineering and infrastructure surrounding it.
