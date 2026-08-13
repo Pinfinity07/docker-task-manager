@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 5003
 
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npm run migrate && npm start"]
