@@ -96,6 +96,12 @@ app.delete("/api/tasks/:id", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Checking if the script is being run directly or being imported as a module. If it's run directly, start the server.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+// Exporting the app instance for testing purposes.
+module.exports = app;
