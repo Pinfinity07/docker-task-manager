@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --omit=dev
 
 COPY . .
 
 EXPOSE 5003
 
-CMD ["sh", "-c", "npm run migrate && npm start"]
+CMD ["npm", "start"]
