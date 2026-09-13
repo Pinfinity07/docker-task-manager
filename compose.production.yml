@@ -44,8 +44,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       DB_PORT: 3306
-    ports:
-      - "5003:5003"
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -53,7 +51,7 @@ services:
   client:
     image: ghcr.io/pinfinity07/docker-task-manager-client:latest
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
       - server
 
