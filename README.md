@@ -279,15 +279,15 @@ The next deployment target is AWS.
 - [x] GitHub Actions CI pipeline
 - [x] Automated database migrations in CI
 - [x] Automated integration tests in CI
-- [ ] Publish images to GitHub Container Registry
-- [ ] Continuous deployment
+- [x] Publish images to GitHub Container Registry
+- [x] Continuous deployment
 
 ### Cloud Deployment
-- [ ] Create AWS infrastructure
-- [ ] Create EC2 instance
-- [ ] Configure security groups
-- [ ] Install Docker on EC2
-- [ ] Deploy production Compose stack to AWS
+- [x] Create AWS infrastructure
+- [x] Create EC2 instance
+- [x] Configure security groups
+- [x] Install Docker on EC2
+- [x] Deploy production Compose stack to AWS
 - [ ] Configure production environment variables
 - [ ] Configure domain name
 - [ ] Configure HTTPS
