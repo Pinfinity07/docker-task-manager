@@ -13,5 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Show commit being deployed
-        run: echo "Deploying ${{ github.event.workflow_run.head_sha }}"
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "SSH connection successful"
+            whoami
+            docker --version
+            docker compose version
