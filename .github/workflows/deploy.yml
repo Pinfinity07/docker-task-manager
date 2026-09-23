@@ -7,20 +7,30 @@ on:
     types:
       - completed
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test SSH connection
-        uses: appleboy/ssh-action@v1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "SSH connection successful"
-            whoami
-            docker --version
-            docker compose version
+          role-to-assume: arn:aws:iam::227246780882:role/docker-task-manager-github-deploy
+          aws-region: ap-south-1
+
+      - name: Deploy to EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids i-08f5466329f0406ad \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd ~/docker-task-manager",
+              "IMAGE_TAG=${{ github.event.workflow_run.head_sha }} docker compose -f compose.production.yml pull",
+              "IMAGE_TAG=${{ github.event.workflow_run.head_sha }} docker compose -f compose.production.yml up -d"
+            ]' \
+            --comment "Deploy ${{ github.event.workflow_run.head_sha }}"
