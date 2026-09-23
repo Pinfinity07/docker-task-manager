@@ -1,9 +1,11 @@
 name: Publish Docker Images
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -11,13 +13,16 @@ permissions:
 
 jobs:
   publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Log in to GitHub Container Registry #Login into GHCR
+      - name: Log in to GitHub Container Registry # Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -34,7 +39,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ env.IMAGE_OWNER }}/docker-task-manager-server:latest
-            ghcr.io/${{ env.IMAGE_OWNER }}/docker-task-manager-server:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_OWNER }}/docker-task-manager-server:${{ github.event.workflow_run.head_sha }}
 
       - name: Build and push client image
         uses: docker/build-push-action@v6
@@ -43,4 +48,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ env.IMAGE_OWNER }}/docker-task-manager-client:latest
-            ghcr.io/${{ env.IMAGE_OWNER }}/docker-task-manager-client:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_OWNER }}/docker-task-manager-client:${{ github.event.workflow_run.head_sha }}
