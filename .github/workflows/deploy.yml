@@ -25,12 +25,41 @@ jobs:
 
       - name: Deploy to EC2 via SSM
         run: |
-          aws ssm send-command \
-          --targets "Key=tag:Deployment,Values=docker-task-manager" \
+          COMMAND_ID=$(aws ssm send-command \
+            --targets "Key=tag:Deployment,Values=docker-task-manager" \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
-              "cd ~/docker-task-manager",
-              "IMAGE_TAG=${{ github.event.workflow_run.head_sha }} docker compose -f compose.production.yml pull",
-              "IMAGE_TAG=${{ github.event.workflow_run.head_sha }} docker compose -f compose.production.yml up -d"
+              "sudo -u ec2-user -H env IMAGE_TAG=${{ github.event.workflow_run.head_sha }} docker compose --env-file /home/ec2-user/docker-task-manager/.env -f /home/ec2-user/docker-task-manager/compose.production.yml pull",
+              "sudo -u ec2-user -H env IMAGE_TAG=${{ github.event.workflow_run.head_sha }} docker compose --env-file /home/ec2-user/docker-task-manager/.env -f /home/ec2-user/docker-task-manager/compose.production.yml up -d"
             ]' \
-            --comment "Deploy ${{ github.event.workflow_run.head_sha }}"
+            --comment "Deploy ${{ github.event.workflow_run.head_sha }}" \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM command: $COMMAND_ID"
+
+          for i in {1..30}; do
+            STATUS=$(aws ssm list-command-invocations \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --query "CommandInvocations[0].Status" \
+              --output text)
+
+            echo "SSM status: $STATUS"
+
+            case "$STATUS" in
+              Success)
+                echo "Deployment succeeded."
+                exit 0
+                ;;
+              Failed|Cancelled|TimedOut|Cancelling)
+                echo "Deployment failed with status: $STATUS"
+                exit 1
+                ;;
+            esac
+
+            sleep 5
+          done
+
+          echo "Deployment timed out waiting for SSM."
+          exit 1
