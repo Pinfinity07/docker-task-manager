@@ -24,7 +24,7 @@ services:
       retries: 10
 
   migrate:
-    image: ghcr.io/pinfinity07/docker-task-manager-server:latest
+    image: ghcr.io/pinfinity07/docker-task-manager-server:${IMAGE_TAG}
     environment:
       DB_HOST: mysql
       DB_USER: ${DB_USER}
@@ -37,7 +37,7 @@ services:
         condition: service_healthy
 
   server:
-    image: ghcr.io/pinfinity07/docker-task-manager-server:latest
+    image: ghcr.io/pinfinity07/docker-task-manager-server:${IMAGE_TAG}
     environment:
       DB_HOST: mysql
       DB_USER: ${DB_USER}
@@ -49,7 +49,7 @@ services:
         condition: service_completed_successfully
 
   client:
-    image: ghcr.io/pinfinity07/docker-task-manager-client:latest
+    image: ghcr.io/pinfinity07/docker-task-manager-client:${IMAGE_TAG}
     ports:
       - "80:80"
     depends_on:
