@@ -26,7 +26,7 @@ jobs:
       - name: Deploy to EC2 via SSM
         run: |
           aws ssm send-command \
-            --instance-ids i-08f5466329f0406ad \
+          --targets "Key=tag:Deployment,Values=docker-task-manager" \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "cd ~/docker-task-manager",
