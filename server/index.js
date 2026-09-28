@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const pool = require("./db");
 
 const app = express();
 const PORT = 5003;
 
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
