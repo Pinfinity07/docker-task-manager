@@ -40,6 +40,46 @@ describe("Tasks API", () => {
     });
   });
 
+  test("POST /api/tasks should reject an empty title", async () => {
+    const response = await request(app).post("/api/tasks").send({
+      title: "",
+      description: "This task has an empty title",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({
+      error: "Title is required",
+    });
+  });
+
+  test("POST /api/tasks should reject a title longer than 255 characters", async () => {
+    const response = await request(app)
+      .post("/api/tasks")
+      .send({
+        title: "a".repeat(256),
+        description: "This task has a title that is too long",
+      });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({
+      error: "Title must be 255 characters or less",
+    });
+  });
+
+  test("POST /api/tasks should reject a description longer than 5000 characters", async () => {
+    const response = await request(app)
+      .post("/api/tasks")
+      .send({
+        title: "Test task",
+        description: "a".repeat(5001),
+      });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({
+      error: "Description must be 5000 characters or less",
+    });
+  });
+
   test("PATCH /api/tasks/:id should update a task", async () => {
     const createResponse = await request(app).post("/api/tasks").send({
       title: "Original task",
@@ -74,6 +114,39 @@ describe("Tasks API", () => {
     });
   });
 
+  test("PATCH /api/tasks/:id should reject an invalid task ID", async () => {
+    const response = await request(app).patch("/api/tasks/abc").send({
+      title: "Updated task",
+      description: "Updated description",
+      completed: true,
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({
+      error: "Invalid task ID",
+    });
+  });
+
+  test("PATCH /api/tasks/:id should reject a non-boolean completed value", async () => {
+    const createResponse = await request(app).post("/api/tasks").send({
+      title: "Original task",
+      description: "Original description",
+    });
+
+    const taskId = createResponse.body.id;
+
+    const response = await request(app).patch(`/api/tasks/${taskId}`).send({
+      title: "Updated task",
+      description: "Updated description",
+      completed: "true",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({
+      error: "Completed must be a boolean",
+    });
+  });
+
   test("DELETE /api/tasks/:id should delete a task", async () => {
     const createResponse = await request(app).post("/api/tasks").send({
       title: "Task to delete",
@@ -97,6 +170,15 @@ describe("Tasks API", () => {
     expect(response.statusCode).toBe(404);
     expect(response.body).toEqual({
       error: "Task not found",
+    });
+  });
+
+  test("DELETE /api/tasks/:id should reject an invalid task ID", async () => {
+    const response = await request(app).delete("/api/tasks/abc");
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({
+      error: "Invalid task ID",
     });
   });
 });

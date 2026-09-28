@@ -3,6 +3,14 @@ const cors = require("cors");
 const helmet = require("helmet");
 const pool = require("./db");
 
+const {
+  createTaskSchema,
+  updateTaskSchema,
+  taskIdSchema,
+} = require("./validation/taskSchemas");
+
+const validate = require("./validation/validate");
+
 const app = express();
 const PORT = 5003;
 
@@ -27,21 +35,24 @@ app.get("/api/tasks", async (req, res) => {
 
 app.post("/api/tasks", async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const validation = validate(createTaskSchema, req.body);
 
-    if (!title) {
-      return res.status(400).json({ error: "Title is required" });
+    if (!validation.success) {
+      return res.status(400).json({
+        error: validation.error,
+      });
     }
+
+    const { title, description } = validation.data;
 
     const [result] = await pool.query(
       "INSERT INTO tasks (title, description) VALUES (?, ?)",
-      [title, description || null]
+      [title, description || null],
     );
 
-    const [rows] = await pool.query(
-      "SELECT * FROM tasks WHERE id = ?",
-      [result.insertId]
-    );
+    const [rows] = await pool.query("SELECT * FROM tasks WHERE id = ?", [
+      result.insertId,
+    ]);
 
     res.status(201).json(rows[0]);
   } catch (error) {
@@ -52,24 +63,37 @@ app.post("/api/tasks", async (req, res) => {
 
 app.patch("/api/tasks/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { title, description, completed } = req.body;
+    const validation = validate(updateTaskSchema, req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        error: validation.error,
+      });
+    }
+
+    const idValidation = validate(taskIdSchema, req.params.id);
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        error: "Invalid task ID",
+      });
+    }
+
+    const { title, description, completed } = validation.data;
+    const id = idValidation.data;
 
     const [result] = await pool.query(
       `UPDATE tasks
        SET title = ?, description = ?, completed = ?
        WHERE id = ?`,
-      [title, description, completed, id]
+      [title, description, completed, id],
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Task not found" });
     }
 
-    const [rows] = await pool.query(
-      "SELECT * FROM tasks WHERE id = ?",
-      [id]
-    );
+    const [rows] = await pool.query("SELECT * FROM tasks WHERE id = ?", [id]);
 
     res.json(rows[0]);
   } catch (error) {
@@ -80,11 +104,19 @@ app.patch("/api/tasks/:id", async (req, res) => {
 
 app.delete("/api/tasks/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const idValidation = validate(taskIdSchema, req.params.id);
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        error: "Invalid task ID",
+      });
+    }
+
+    const id = idValidation.data;
 
     const [result] = await pool.query(
       "DELETE FROM tasks WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -98,7 +130,8 @@ app.delete("/api/tasks/:id", async (req, res) => {
   }
 });
 
-// Checking if the script is being run directly or being imported as a module. If it's run directly, start the server.
+// Checking if the script is being run directly or being imported as a module.
+// If it's run directly, start the server.
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

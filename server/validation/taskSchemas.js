@@ -23,7 +23,9 @@ const createTaskSchema = z.object({
 const updateTaskSchema = z.object({
   title: taskTitle,
   description: taskDescription,
-  completed: z.boolean(),
+  completed: z.boolean({
+    error: "Completed must be a boolean",
+  }),
 });
 
 const taskIdSchema = z.coerce.number().int().positive();
